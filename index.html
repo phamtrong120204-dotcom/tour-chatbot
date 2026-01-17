@@ -25,53 +25,60 @@
     </footer>
   </div>
 
- <script>
-const API_URL = "https://tour-chatbot-api.vercel.app/api/chat";
+<script>
+  const API_URL = "https://tour-chatbot-api.vercel.app/api/chat";
 
-const chatBox = document.getElementById("chat");
-const form = document.getElementById("form");
-const input = document.getElementById("input");
-const status = document.getElementById("status");
+  const chat = document.getElementById("chat");
+  const form = document.getElementById("form");
+  const input = document.getElementById("input");
+  const status = document.getElementById("status");
 
-function addMessage(text, sender = "bot") {
-  const div = document.createElement("div");
-  div.className = sender === "user" ? "msg user" : "msg bot";
-  div.textContent = text;
-  chatBox.appendChild(div);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const message = input.value.trim();
-  if (!message) return;
-
-  addMessage(message, "user");
-  input.value = "";
-  status.textContent = "Đang trả lời...";
-
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ message })
-    });
-
-    const data = await res.json();
-
-    if (data.reply) {
-      addMessage(data.reply, "bot");
-    } else {
-      addMessage("Xin lỗi, mình chưa trả lời được câu này 😥");
-    }
-  } catch (err) {
-    addMessage("Lỗi kết nối. Bạn thử lại sau nhé!");
+  function addMessage(text, type) {
+    const div = document.createElement("div");
+    div.className = "msg " + type;
+    div.innerText = text;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
   }
 
-  status.textContent = "Sẵn sàng";
-});
+  // Tin nhắn chào ban đầu
+  addMessage(
+    "Xin chào 👋 Bạn muốn hỏi về tour nào? (ngày đi & số người giúp mình tư vấn chính xác hơn)",
+    "bot"
+  );
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const message = input.value.trim();
+    if (!message) return;
+
+    addMessage(message, "user");
+    input.value = "";
+    status.innerText = "Đang trả lời...";
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message }),
+      });
+
+      const data = await res.json();
+
+      if (data.reply) {
+        addMessage(data.reply, "bot");
+      } else {
+        addMessage("Bot không trả lời được. Vui lòng thử lại.", "bot");
+      }
+    } catch (err) {
+      console.error(err);
+      addMessage("Lỗi kết nối. Bạn thử lại sau nhé!", "bot");
+    } finally {
+      status.innerText = "Sẵn sàng";
+    }
+  });
 </script>
 </body>
 </html>
