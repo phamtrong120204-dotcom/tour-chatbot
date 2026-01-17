@@ -82,5 +82,44 @@ form.addEventListener("submit", async (e) => {
   }
 });
 </script>
+<!-- ===== Floating Contact Buttons (Zalo + Call) ===== -->
+<div class="floating-contact">
+  <!-- Zalo -->
+  <a class="btn-zalo" href="https://zalo.me/0774546748" target="_blank">
+    Zalo
+  </a>
+
+  <!-- Call -->
+  <a class="btn-call" href="tel:0774546748">
+    Gọi
+  </a>
+</div>
+
+<style>
+  .floating-contact{
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999;
+    font-family: Arial, sans-serif;
+  }
+  .floating-contact a{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 999px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 10px 25px rgba(0,0,0,.2);
+  }
+  .btn-zalo{ background:#0068ff; }
+  .btn-call{ background:#111; }
+</style>
 </body>
 </html>
