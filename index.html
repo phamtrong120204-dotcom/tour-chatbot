@@ -140,75 +140,58 @@ body{
 
 <script>
 const API_URL = "https://tour-chatbot-api.vercel.app/api/chat";
+
 const chat = document.getElementById("chat");
-const input = document.getElementById("input");
 const form = document.getElementById("form");
+const input = document.getElementById("input");
 
-// ✅ LƯU TOÀN BỘ HỘI THOẠI
-let history = [];
-
-function addMsg(text,type){
-  const div=document.createElement("div");
-  div.className="msg "+type;
-  div.textContent=text;
+function addMsg(text, type) {
+  const div = document.createElement("div");
+  div.className = "msg " + type;
+  div.textContent = text;
   chat.appendChild(div);
-  chat.scrollTop=chat.scrollHeight;
+  chat.scrollTop = chat.scrollHeight;
 }
 
-// ===== Tin nhắn chào =====
-const welcome =
-  "Xin chào 👋 Mình là Phạm Trọng. Bạn muốn hỏi tour nào? (cho mình biết ngày đi & số người để tư vấn chính xác hơn)";
-addMsg(welcome,"bot");
-history.push({ role:"assistant", content: welcome });
+// Lời chào ban đầu
+addMsg(
+  "Xin chào 👋 Mình là Phạm Trọng. Anh/chị muốn hỏi tour nào ạ? Cho mình biết ngày đi & số người để mình tư vấn chính xác hơn nhé.",
+  "bot"
+);
 
-// ===== CHAT =====
-form.addEventListener("submit", async e=>{
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const msg=input.value.trim();
-  if(!msg) return;
+  const message = input.value.trim();
+  if (!message) return;
 
-  // Hiển thị user
-  addMsg(msg,"user");
-  history.push({ role:"user", content: msg });
-  input.value="";
+  addMsg(message, "user");
+  input.value = "";
 
-  try{
-    const res = await fetch(API_URL,{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({
-        messages: history
-      })
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message }),
     });
 
     const data = await res.json();
-    const reply = data.reply || "Mình sẽ kiểm tra thông tin và phản hồi lại bạn nhé.";
 
-    addMsg(reply,"bot");
-    history.push({ role:"assistant", content: reply });
+    if (!res.ok) {
+      addMsg(
+        "Mình đang gặp sự cố kỹ thuật nhỏ, anh/chị quay lại sau giúp mình nhé.",
+        "bot"
+      );
+      return;
+    }
 
-  }catch{
-    addMsg("Lỗi kết nối. Bạn thử lại sau nhé!","bot");
+    addMsg(data.reply || "Mình sẽ kiểm tra và phản hồi ngay cho anh/chị nhé.", "bot");
+  } catch (err) {
+    addMsg(
+      "Không kết nối được hệ thống. Anh/chị thử lại sau giúp mình nhé.",
+      "bot"
+    );
   }
 });
-
-// ===== AUTO REVIEWS =====
-const reviews=[
- {name:"Nguyễn Thị Lan",stars:"★★★★★",text:"Tư vấn rõ ràng, không phát sinh chi phí."},
- {name:"Trần Minh Hoàng",stars:"★★★★★",text:"Gia đình đi rất vui, lịch trình hợp lý."},
- {name:"Lê Thu Hà",stars:"★★★★☆",text:"Hỗ trợ nhanh, phù hợp gia đình có trẻ nhỏ."},
- {name:"Phạm Quốc Bảo",stars:"★★★★★",text:"Dịch vụ đúng như tư vấn, rất hài lòng."}
-];
-
-const box=document.getElementById("reviewBox");
-function showReview(){
- const r=reviews[Math.floor(Math.random()*reviews.length)];
- box.innerHTML=`<div class="name">${r.name}</div>
- <div class="stars">${r.stars}</div>
- <div class="text">${r.text}</div>`;
-}
-showReview();
-setInterval(showReview,5000);
 </script>
 </body>
 </html>
