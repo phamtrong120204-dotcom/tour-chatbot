@@ -142,6 +142,10 @@ body{
 const API_URL = "https://tour-chatbot-api.vercel.app/api/chat";
 const chat = document.getElementById("chat");
 const input = document.getElementById("input");
+const form = document.getElementById("form");
+
+// ✅ LƯU TOÀN BỘ HỘI THOẠI
+let history = [];
 
 function addMsg(text,type){
   const div=document.createElement("div");
@@ -151,26 +155,38 @@ function addMsg(text,type){
   chat.scrollTop=chat.scrollHeight;
 }
 
-addMsg(
-  "Xin chào 👋 Mình là Phạm Trọng. Bạn muốn hỏi tour nào? (cho mình biết ngày đi & số người để tư vấn chính xác hơn)",
-  "bot"
-);
+// ===== Tin nhắn chào =====
+const welcome =
+  "Xin chào 👋 Mình là Phạm Trọng. Bạn muốn hỏi tour nào? (cho mình biết ngày đi & số người để tư vấn chính xác hơn)";
+addMsg(welcome,"bot");
+history.push({ role:"assistant", content: welcome });
 
 // ===== CHAT =====
-document.getElementById("form").addEventListener("submit",async e=>{
+form.addEventListener("submit", async e=>{
   e.preventDefault();
   const msg=input.value.trim();
   if(!msg) return;
+
+  // Hiển thị user
   addMsg(msg,"user");
+  history.push({ role:"user", content: msg });
   input.value="";
+
   try{
-    const res=await fetch(API_URL,{
+    const res = await fetch(API_URL,{
       method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({message:msg})
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({
+        messages: history
+      })
     });
-    const data=await res.json();
-    addMsg(data.reply||"Mình sẽ kiểm tra thông tin và phản hồi lại bạn nhé.","bot");
+
+    const data = await res.json();
+    const reply = data.reply || "Mình sẽ kiểm tra thông tin và phản hồi lại bạn nhé.";
+
+    addMsg(reply,"bot");
+    history.push({ role:"assistant", content: reply });
+
   }catch{
     addMsg("Lỗi kết nối. Bạn thử lại sau nhé!","bot");
   }
@@ -183,6 +199,7 @@ const reviews=[
  {name:"Lê Thu Hà",stars:"★★★★☆",text:"Hỗ trợ nhanh, phù hợp gia đình có trẻ nhỏ."},
  {name:"Phạm Quốc Bảo",stars:"★★★★★",text:"Dịch vụ đúng như tư vấn, rất hài lòng."}
 ];
+
 const box=document.getElementById("reviewBox");
 function showReview(){
  const r=reviews[Math.floor(Math.random()*reviews.length)];
