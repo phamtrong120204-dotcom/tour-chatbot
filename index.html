@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chatbot tư vấn tour</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">Chatbot Tư Vấn Tour</div>
+      <div class="sub">Hỏi mình về tour, lịch trình, giá & chính sách</div>
+    </header>
+
+    <main id="chat" class="chat"></main>
+
+    <form id="form" class="bar">
+      <input id="input" type="text" placeholder="Nhập câu hỏi của bạn..." autocomplete="off" />
+      <button type="submit">Gửi</button>
+    </form>
+
+    <footer class="foot">
+      <span id="status">Sẵn sàng</span>
+    </footer>
+  </div>
+
+  <script>
+    // TẠM THỜI để trống – lát nữa sẽ dán link Vercel vào
+    const API_URL = "";
+
+    const chat = document.getElementById("chat");
+    const form = document.getElementById("form");
+    const input = document.getElementById("input");
+    const statusEl = document.getElementById("status");
+
+    function addMsg(role, text) {
+      const div = document.createElement("div");
+      div.className = "msg " + role;
+      div.innerText = text;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    addMsg("bot", "Xin chào 👋 Bạn muốn hỏi về tour nào? (ngày đi & số người giúp mình tư vấn chính xác hơn)");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const q = input.value.trim();
+      if (!q) return;
+
+      addMsg("me", q);
+      input.value = "";
+      statusEl.textContent = "Đang trả lời...";
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: q })
+        });
+        const data = await res.json();
+        addMsg("bot", data.reply || "Mình chưa có dữ liệu phù hợp. Bạn để lại SĐT để được tư vấn nhanh nhé!");
+      } catch {
+        addMsg("bot", "Lỗi kết nối. Bạn thử lại sau hoặc để lại SĐT nhé!");
+      } finally {
+        statusEl.textContent = "Sẵn sàng";
+      }
+    });
+  </script>
+</body>
+</html>
