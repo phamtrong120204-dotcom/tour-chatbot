@@ -1,125 +1,195 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Phạm Trọng - Tư vấn tour Rừng dừa Bảy Mẫu</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="wrap">
-    <header class="top">
-      <div class="brand">Phạm Trọng</div>
-      <div class="sub">Tư vấn tour | Giá chuẩn – Hỗ trợ nhanh </div>
-    </header>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phạm Trọng – Tư vấn Tour</title>
 
-    <main id="chat" class="chat"></main>
-
-    <form id="form" class="bar">
-      <input id="input" type="text" placeholder="Nhập câu hỏi của bạn..." autocomplete="off" />
-      <button type="submit">Gửi</button>
-    </form>
-
-    <footer class="foot">
-      <span id="status">Sẵn sàng</span>
-    </footer>
-  </div>
-<script>
-const API_URL = "https://tour-chatbot-api.vercel.app/api/chat";
-
-const chat = document.getElementById("chat");
-const form = document.getElementById("form");
-const input = document.getElementById("input");
-const status = document.getElementById("status");
-
-function addMessage(text, type) {
-  const div = document.createElement("div");
-  div.className = "msg " + type;
-  div.textContent = text;
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
+<style>
+body{
+  margin:0;
+  background:#f3f4f6;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+}
+.app{
+  max-width:420px;
+  margin:0 auto;
+  background:#ffffff;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
 }
 
-addMessage(
-  "Xin chào 👋 Bạn muốn hỏi về tour nào? (ngày đi & số người giúp mình tư vấn chính xác hơn)",
+/* ===== Header ===== */
+.header{
+  padding:16px;
+  border-bottom:1px solid #e5e7eb;
+}
+.header h1{
+  font-size:17px;
+  margin:0;
+}
+.header p{
+  font-size:13px;
+  color:#6b7280;
+  margin:4px 0 0;
+}
+
+/* ===== Chat ===== */
+.chat{
+  flex:1;
+  padding:14px;
+  overflow-y:auto;
+  background:#f9fafb;
+}
+.msg{
+  max-width:85%;
+  margin-bottom:10px;
+  padding:10px 12px;
+  border-radius:14px;
+  font-size:14px;
+  line-height:1.45;
+}
+.bot{
+  background:#f1f5f9;
+}
+.user{
+  background:#2563eb;
+  color:#fff;
+  margin-left:auto;
+}
+
+/* ===== Reviews ===== */
+.reviews{
+  padding:14px;
+  border-top:1px dashed #e5e7eb;
+  background:#ffffff;
+}
+.review{
+  background:#f9fafb;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  padding:12px;
+  animation:fade .4s;
+}
+.review .name{font-weight:600}
+.review .stars{color:#f59e0b;font-size:13px}
+.review .text{font-size:13px;margin-top:6px}
+
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+/* ===== Input ===== */
+.form{
+  display:flex;
+  padding:12px;
+  border-top:1px solid #e5e7eb;
+}
+.form input{
+  flex:1;
+  padding:10px;
+  border-radius:999px;
+  border:1px solid #d1d5db;
+  outline:none;
+}
+.form button{
+  margin-left:8px;
+  padding:0 18px;
+  border:none;
+  border-radius:999px;
+  background:#111827;
+  color:#ffffff;
+  font-weight:600;
+}
+.footer{
+  text-align:center;
+  font-size:11px;
+  color:#6b7280;
+  padding:6px;
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+  <h1>Phạm Trọng – Tư vấn Tour</h1>
+  <p>Hỗ trợ tour, lịch trình & giá minh bạch</p>
+</div>
+
+<!-- ===== CHAT ===== -->
+<div id="chat" class="chat"></div>
+
+<!-- ===== REVIEWS ===== -->
+<div class="reviews">
+  <div id="reviewBox" class="review"></div>
+</div>
+
+<!-- ===== INPUT ===== -->
+<form id="form" class="form">
+  <input id="input" placeholder="Nhập câu hỏi của bạn..." autocomplete="off">
+  <button>Gửi</button>
+</form>
+
+<div class="footer">Hoạt động 24/7 • Tư vấn tự động</div>
+
+</div>
+
+<script>
+const API_URL = "https://tour-chatbot-api.vercel.app/api/chat";
+const chat = document.getElementById("chat");
+const input = document.getElementById("input");
+
+function addMsg(text,type){
+  const div=document.createElement("div");
+  div.className="msg "+type;
+  div.textContent=text;
+  chat.appendChild(div);
+  chat.scrollTop=chat.scrollHeight;
+}
+
+addMsg(
+  "Xin chào 👋 Mình là Phạm Trọng. Bạn muốn hỏi tour nào? (cho mình biết ngày đi & số người để tư vấn chính xác hơn)",
   "bot"
 );
 
-form.addEventListener("submit", async (e) => {
+// ===== CHAT =====
+document.getElementById("form").addEventListener("submit",async e=>{
   e.preventDefault();
-  const message = input.value.trim();
-  if (!message) return;
-
-  addMessage(message, "user");
-  input.value = "";
-  status.textContent = "Đang trả lời...";
-
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ message })
+  const msg=input.value.trim();
+  if(!msg) return;
+  addMsg(msg,"user");
+  input.value="";
+  try{
+    const res=await fetch(API_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({message:msg})
     });
-
-    if (!res.ok) {
-      throw new Error("HTTP error " + res.status);
-    }
-
-    const data = await res.json();
-
-    if (data.reply) {
-      addMessage(data.reply, "bot");
-    } else {
-      addMessage("Bot không có phản hồi phù hợp.", "bot");
-    }
-  } catch (err) {
-    console.error("FETCH ERROR:", err);
-    addMessage("Lỗi kết nối. Bạn thử lại sau nhé!", "bot");
-  } finally {
-    status.textContent = "Sẵn sàng";
+    const data=await res.json();
+    addMsg(data.reply||"Mình sẽ kiểm tra thông tin và phản hồi lại bạn nhé.","bot");
+  }catch{
+    addMsg("Lỗi kết nối. Bạn thử lại sau nhé!","bot");
   }
 });
+
+// ===== AUTO REVIEWS =====
+const reviews=[
+ {name:"Nguyễn Thị Lan",stars:"★★★★★",text:"Tư vấn rõ ràng, không phát sinh chi phí."},
+ {name:"Trần Minh Hoàng",stars:"★★★★★",text:"Gia đình đi rất vui, lịch trình hợp lý."},
+ {name:"Lê Thu Hà",stars:"★★★★☆",text:"Hỗ trợ nhanh, phù hợp gia đình có trẻ nhỏ."},
+ {name:"Phạm Quốc Bảo",stars:"★★★★★",text:"Dịch vụ đúng như tư vấn, rất hài lòng."}
+];
+const box=document.getElementById("reviewBox");
+function showReview(){
+ const r=reviews[Math.floor(Math.random()*reviews.length)];
+ box.innerHTML=`<div class="name">${r.name}</div>
+ <div class="stars">${r.stars}</div>
+ <div class="text">${r.text}</div>`;
+}
+showReview();
+setInterval(showReview,5000);
 </script>
-<!-- ===== Floating Contact Buttons (Zalo + Call) ===== -->
-<div class="floating-contact">
-  <!-- Zalo -->
-  <a class="btn-zalo" href="https://zalo.me/0774546748" target="_blank">
-    Zalo
-  </a>
-
-  <!-- Call -->
-  <a class="btn-call" href="tel:0774546748">
-    Gọi
-  </a>
-</div>
-
-<style>
-  .floating-contact{
-    position: fixed;
-    right: 16px;
-    bottom: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    z-index: 9999;
-    font-family: Arial, sans-serif;
-  }
-  .floating-contact a{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 64px;
-    height: 64px;
-    border-radius: 999px;
-    color: #fff;
-    text-decoration: none;
-    font-weight: bold;
-    box-shadow: 0 10px 25px rgba(0,0,0,.2);
-  }
-  .btn-zalo{ background:#0068ff; }
-  .btn-call{ background:#111; }
-</style>
 </body>
 </html>
