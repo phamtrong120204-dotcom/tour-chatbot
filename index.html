@@ -25,48 +25,53 @@
     </footer>
   </div>
 
-  <script>
-    // TẠM THỜI để trống – lát nữa sẽ dán link Vercel vào
-    const API_URL = "https://tour-chatbot-api.vercel.app/api/chat";
+ <script>
+const API_URL = "https://tour-chatbot-api.vercel.app/api/chat";
 
-    const chat = document.getElementById("chat");
-    const form = document.getElementById("form");
-    const input = document.getElementById("input");
-    const statusEl = document.getElementById("status");
+const chatBox = document.getElementById("chat");
+const form = document.getElementById("form");
+const input = document.getElementById("input");
+const status = document.getElementById("status");
 
-    function addMsg(role, text) {
-      const div = document.createElement("div");
-      div.className = "msg " + role;
-      div.innerText = text;
-      chat.appendChild(div);
-      chat.scrollTop = chat.scrollHeight;
-    }
+function addMessage(text, sender = "bot") {
+  const div = document.createElement("div");
+  div.className = sender === "user" ? "msg user" : "msg bot";
+  div.textContent = text;
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
 
-    addMsg("bot", "Xin chào 👋 Bạn muốn hỏi về tour nào? (ngày đi & số người giúp mình tư vấn chính xác hơn)");
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const message = input.value.trim();
+  if (!message) return;
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const q = input.value.trim();
-      if (!q) return;
+  addMessage(message, "user");
+  input.value = "";
+  status.textContent = "Đang trả lời...";
 
-      addMsg("me", q);
-      input.value = "";
-      statusEl.textContent = "Đang trả lời...";
-
-      try {
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: q })
-        });
-        const data = await res.json();
-        addMsg("bot", data.reply || "Mình chưa có dữ liệu phù hợp. Bạn để lại SĐT để được tư vấn nhanh nhé!");
-      } catch {
-        addMsg("bot", "Lỗi kết nối. Bạn thử lại sau hoặc để lại SĐT nhé!");
-      } finally {
-        statusEl.textContent = "Sẵn sàng";
-      }
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ message })
     });
-  </script>
+
+    const data = await res.json();
+
+    if (data.reply) {
+      addMessage(data.reply, "bot");
+    } else {
+      addMessage("Xin lỗi, mình chưa trả lời được câu này 😥");
+    }
+  } catch (err) {
+    addMessage("Lỗi kết nối. Bạn thử lại sau nhé!");
+  }
+
+  status.textContent = "Sẵn sàng";
+});
+</script>
 </body>
 </html>
