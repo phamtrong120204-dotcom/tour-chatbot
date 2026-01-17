@@ -145,20 +145,29 @@ const chat = document.getElementById("chat");
 const form = document.getElementById("form");
 const input = document.getElementById("input");
 
+// ===== LƯU LỊCH SỬ HỘI THOẠI =====
+let conversation = [];
+
 function addMsg(text, type) {
   const div = document.createElement("div");
   div.className = "msg " + type;
   div.textContent = text;
   chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
+
+  conversation.push({
+    role: type === "user" ? "user" : "assistant",
+    content: text
+  });
 }
 
 // Lời chào ban đầu
-addMsg(
-  "Xin chào 👋 Mình là Phạm Trọng. Anh/chị muốn hỏi tour nào ạ? Cho mình biết ngày đi & số người để mình tư vấn chính xác hơn nhé.",
-  "bot"
-);
+const welcome =
+  "Xin chào 👋 Mình là Phạm Trọng. Anh/chị muốn hỏi tour nào ạ? Cho mình biết ngày đi & số người để mình tư vấn chính xác hơn nhé.";
 
+addMsg(welcome, "bot");
+
+// ===== SUBMIT =====
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const message = input.value.trim();
@@ -171,25 +180,19 @@ form.addEventListener("submit", async (e) => {
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({
+        message,
+        history: conversation   // 🔥 GỬI LỊCH SỬ
+      }),
     });
 
     const data = await res.json();
-
-    if (!res.ok) {
-      addMsg(
-        "Mình đang gặp sự cố kỹ thuật nhỏ, anh/chị quay lại sau giúp mình nhé.",
-        "bot"
-      );
-      return;
-    }
-
-    addMsg(data.reply || "Mình sẽ kiểm tra và phản hồi ngay cho anh/chị nhé.", "bot");
-  } catch (err) {
     addMsg(
-      "Không kết nối được hệ thống. Anh/chị thử lại sau giúp mình nhé.",
+      data.reply || "Mình đang kiểm tra thông tin cho anh/chị nhé.",
       "bot"
     );
+  } catch {
+    addMsg("Lỗi kết nối. Anh/chị thử lại sau giúp mình nhé.", "bot");
   }
 });
 </script>
