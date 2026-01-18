@@ -139,15 +139,22 @@ body{
 </div>
 
 <script>
+/* ================== CONFIG ================== */
 const API_URL = "https://tour-chatbot-api.vercel.app/api/chat";
+const SHEET_API = "https://script.google.com/macros/s/AKfycbzL_4H4O08AFj7Leh9S5sevRlPNe0JgDABpLVo709R55VGQ_gNA6LiVEoC7uJZ/exec";
 
+/* ================== DOM ================== */
 const chat = document.getElementById("chat");
 const form = document.getElementById("form");
 const input = document.getElementById("input");
 
-// ===== LƯU LỊCH SỬ HỘI THOẠI =====
+/* ================== STATE ================== */
 let conversation = [];
+let customerDate = "";
+let customerPeople = "";
+let customerPhone = "";
 
+/* ================== UI ================== */
 function addMsg(text, type) {
   const div = document.createElement("div");
   div.className = "msg " + type;
@@ -161,29 +168,68 @@ function addMsg(text, type) {
   });
 }
 
-// Lời chào ban đầu
-const welcome =
-  "Xin chào 👋 Mình là Phạm Trọng. Anh/chị muốn hỏi tour nào ạ? Cho mình biết ngày đi & số người để mình tư vấn chính xác hơn nhé.";
+/* ================== SAVE LEAD ================== */
+async function saveLead(note = "") {
+  if (!customerPhone && !customerDate && !customerPeople) return;
 
-addMsg(welcome, "bot");
+  const payload = {
+    name: "Khách website",
+    phone: customerPhone,
+    date: customerDate,
+    people: customerPeople,
+    message: note
+  };
 
-// ===== SUBMIT =====
+  try {
+    await fetch(SHEET_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    console.log("✅ Lead saved");
+  } catch (err) {
+    console.error("❌ Save lead error", err);
+  }
+}
+
+/* ================== WELCOME ================== */
+addMsg(
+  "Xin chào 👋 Mình là Phạm Trọng. Anh/chị muốn hỏi tour nào ạ? Cho mình biết ngày đi & số người để mình tư vấn chính xác hơn nhé.",
+  "bot"
+);
+
+/* ================== SUBMIT ================== */
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const message = input.value.trim();
-  if (!message) return;
+  const msg = input.value.trim();
+  if (!msg) return;
 
-  addMsg(message, "user");
+  addMsg(msg, "user");
   input.value = "";
+
+  /* ===== BẮT THÔNG TIN KHÁCH ===== */
+  if (msg.match(/\d{1,2}[\/\-]\d{1,2}/)) customerDate = msg;
+  if (msg.includes("người")) customerPeople = msg;
+  const phoneMatch = msg.match(/0\d{9,10}/);
+  if (phoneMatch) customerPhone = phoneMatch[0];
+
+  /* ===== CHỐT TOUR ===== */
+  if (
+    msg.toLowerCase().includes("đặt") ||
+    msg.toLowerCase().includes("chốt") ||
+    msg.toLowerCase().includes("xác nhận")
+  ) {
+    saveLead("Khách xác nhận đặt tour");
+  }
 
   try {
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        message,
-        history: conversation   // 🔥 GỬI LỊCH SỬ
-      }),
+        message: msg,
+        history: conversation
+      })
     });
 
     const data = await res.json();
