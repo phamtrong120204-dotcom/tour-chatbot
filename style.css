@@ -12,9 +12,13 @@ html,body{
 
 /* ===== App wrapper ===== */
 .wrap{
+  position:fixed;                /* 🔥 KHÓA VỊ TRÍ */
+  top:0;
+  left:50%;
+  transform:translateX(-50%);    /* canh giữa */
+  width:100%;
   max-width:520px;
-  height:100vh;                 /* 🔥 full màn hình */
-  margin:0 auto;
+  height:100vh;
   background:#fff;
   display:flex;
   flex-direction:column;
