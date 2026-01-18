@@ -1,99 +1,109 @@
 *{
-  box-sizing:border-box;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
 }
 
-html,body{
-  height:100%;
-  margin:0;
-  background:#f3f4f6;
-  overflow:hidden; /* 🔥 chặn scroll toàn trang */
+html, body{
+  height: 100%;
+  margin: 0;
+  background: #f3f4f6;
+  overflow: hidden;
 }
 
-/* ===== App wrapper ===== */
+/* ===== APP ===== */
 .wrap{
-  position:fixed;                /* 🔥 KHÓA VỊ TRÍ */
-  top:0;
-  left:50%;
-  transform:translateX(-50%);    /* canh giữa */
-  width:100%;
-  max-width:520px;
-  height:100vh;
-  background:#fff;
-  display:flex;
-  flex-direction:column;
-  box-shadow:0 10px 25px rgba(0,0,0,.08);
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 520px;
+  height: 100vh;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
 }
 
-/* ===== Header ===== */
+/* ===== HEADER ===== */
 .top{
-  padding:14px 16px;
-  border-bottom:1px solid #eee;
-  flex-shrink:0;
+  padding: 14px 16px;
+  border-bottom: 1px solid #eee;
 }
 .brand{font-weight:700}
 .sub{font-size:13px;color:#555;margin-top:4px}
 
-/* ===== Chat area ===== */
+/* ===== CHAT ===== */
 .chat{
-  flex:1;                       /* 🔥 chiếm toàn bộ phần giữa */
-  overflow-y:auto;              /* 🔥 scroll nội bộ */
-  padding:14px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  background:#fafafa;
-  -webkit-overflow-scrolling:touch;
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #fafafa;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* ===== Message ===== */
+/* ===== MESSAGE ===== */
 .msg{
-  max-width:85%;
-  padding:10px 12px;
-  border-radius:14px;
-  white-space:pre-wrap;
-  line-height:1.4;
-}
-.msg.me{
-  align-self:flex-end;
-  background:#2563eb;           /* giống FB */
-  color:#fff;
+  max-width: 85%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  line-height: 1.4;
+  word-break: break-word;
 }
 .msg.bot{
-  align-self:flex-start;
-  background:#fff;
-  border:1px solid #eee;
+  background: #eef2f7;
+  align-self: flex-start;
+}
+.msg.me{
+  background: #2563eb;
+  color: #fff;
+  align-self: flex-end;
 }
 
-/* ===== Input bar ===== */
+/* ===== CONFIRM BUTTON ===== */
+.confirm-btn{
+  display: none;
+  margin: 10px 12px;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: #16a34a;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ===== INPUT ===== */
 .bar{
-  display:flex;
-  gap:8px;
-  padding:12px;
-  border-top:1px solid #eee;
-  background:#fff;
-  flex-shrink:0;                /* 🔥 luôn dính đáy */
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid #eee;
+  background: #fff;
+  flex-shrink: 0;
 }
 .bar input{
-  flex:1;
-  padding:10px 12px;
-  border-radius:999px;
-  border:1px solid #ccc;
-  outline:none;
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid #ccc;
 }
 .bar button{
-  padding:10px 16px;
-  border:none;
-  border-radius:999px;
-  background:#111;
-  color:#fff;
-  cursor:pointer;
+  padding: 0 18px;
+  border: none;
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+  font-weight: 600;
 }
 
-/* ===== Footer ===== */
+/* ===== FOOTER ===== */
 .foot{
-  padding:8px 14px;
-  font-size:12px;
-  color:#666;
-  text-align:center;
+  padding: 6px;
+  font-size: 11px;
+  color: #666;
+  text-align: center;
 }
