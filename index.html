@@ -6,7 +6,6 @@
 <title>Phạm Trọng – Tư vấn Tour</title>
 
 <style>
-/* ===== RESET ===== */
 *{
   box-sizing:border-box;
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
@@ -21,12 +20,9 @@ html,body{
 /* ===== APP ===== */
 .wrap{
   position:fixed;
-  top:0;
-  left:50%;
-  transform:translateX(-50%);
-  width:100%;
+  inset:0;
   max-width:520px;
-  height:100vh;
+  margin:0 auto;
   background:#fff;
   display:flex;
   flex-direction:column;
@@ -70,7 +66,7 @@ html,body{
 /* ===== CONFIRM BUTTON ===== */
 .confirm-btn{
   display:none;
-  margin:10px 12px;
+  margin:8px 12px;
   padding:14px;
   border:none;
   border-radius:12px;
@@ -123,9 +119,9 @@ html,body{
 
   <div id="chat" class="chat"></div>
 
-  <!-- 🔘 NÚT XÁC NHẬN -->
+  <!-- ✅ NÚT XÁC NHẬN (CHỈ 1 CÁI) -->
   <button id="confirmBtn" class="confirm-btn">
-    ✅ Xác nhận đặt tour
+    ✅ XÁC NHẬN ĐẶT TOUR
   </button>
 
   <form id="form" class="bar">
