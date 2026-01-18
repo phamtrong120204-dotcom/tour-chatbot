@@ -1,203 +1,210 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Phạm Trọng – Tư vấn Tour</title>
 
 <style>
 /* ===== RESET ===== */
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+}
 html,body{
   height:100%;
   margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
   background:#f3f4f6;
-  overflow:hidden; /* 🔥 KHÔNG CHO TRANG DÀI RA */
+  overflow:hidden;
 }
 
 /* ===== APP ===== */
-.app{
-  max-width:420px;
-  height:100vh;               /* 🔥 KHÓA CHIỀU CAO */
-  margin:0 auto;
-  background:#ffffff;
+.wrap{
+  position:fixed;
+  top:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:100%;
+  max-width:520px;
+  height:100vh;
+  background:#fff;
   display:flex;
   flex-direction:column;
 }
 
 /* ===== HEADER ===== */
-.header{
+.top{
   padding:14px 16px;
-  border-bottom:1px solid #e5e7eb;
+  border-bottom:1px solid #eee;
 }
-.header h1{
-  font-size:16px;
-  margin:0;
-}
-.header p{
-  font-size:13px;
-  color:#6b7280;
-  margin:4px 0 0;
-}
+.brand{font-weight:700}
+.sub{font-size:13px;color:#555;margin-top:4px}
 
 /* ===== CHAT ===== */
 .chat{
-  flex:1;                     /* 🔥 CHỈ PHẦN CHAT ĐƯỢC SCROLL */
-  padding:14px;
+  flex:1;
   overflow-y:auto;
-  background:#f9fafb;
+  padding:14px;
   display:flex;
   flex-direction:column;
   gap:10px;
-  scroll-behavior:smooth;
+  background:#fafafa;
 }
-
-/* ===== MESSAGE ===== */
 .msg{
   max-width:85%;
   padding:10px 12px;
   border-radius:14px;
-  font-size:14px;
-  line-height:1.45;
+  line-height:1.4;
   word-break:break-word;
-  overflow-wrap:anywhere;
 }
 .msg.bot{
   background:#eef2f7;
   align-self:flex-start;
 }
-.msg.user{
+.msg.me{
   background:#2563eb;
   color:#fff;
   align-self:flex-end;
 }
 
-/* ===== INPUT ===== */
-.form{
-  display:flex;
-  gap:8px;
-  padding:12px;
-  border-top:1px solid #e5e7eb;
-}
-.form input{
-  flex:1;
-  padding:10px 12px;
-  border-radius:999px;
-  border:1px solid #d1d5db;
-  outline:none;
-}
-.form button{
-  padding:0 18px;
+/* ===== CONFIRM BUTTON ===== */
+.confirm-btn{
+  display:none;
+  margin:10px 12px;
+  padding:14px;
   border:none;
-  border-radius:999px;
-  background:#111827;
+  border-radius:12px;
+  background:#16a34a;
   color:#fff;
   font-weight:600;
+  font-size:15px;
   cursor:pointer;
 }
 
+/* ===== INPUT ===== */
+.bar{
+  display:flex;
+  gap:8px;
+  padding:12px;
+  border-top:1px solid #eee;
+}
+.bar input{
+  flex:1;
+  padding:10px 12px;
+  border-radius:999px;
+  border:1px solid #ccc;
+}
+.bar button{
+  padding:0 18px;
+  border:none;
+  border-radius:999px;
+  background:#111;
+  color:#fff;
+  font-weight:600;
+}
+
 /* ===== FOOTER ===== */
-.footer{
-  text-align:center;
-  font-size:11px;
-  color:#6b7280;
+.foot{
   padding:6px;
+  font-size:11px;
+  color:#666;
+  text-align:center;
 }
 </style>
 </head>
 
 <body>
-<div class="app">
+<div class="wrap">
 
-  <!-- HEADER -->
-  <div class="header">
-    <h1>Phạm Trọng – Tư vấn Tour</h1>
-    <p>Hỗ trợ tour, lịch trình & giá minh bạch</p>
+  <div class="top">
+    <div class="brand">Phạm Trọng – Tư vấn Tour</div>
+    <div class="sub">Hỗ trợ tour, lịch trình & giá minh bạch</div>
   </div>
 
-  <!-- CHAT -->
   <div id="chat" class="chat"></div>
 
-  <!-- INPUT -->
-  <form id="form" class="form">
-    <input id="input" placeholder="Nhập câu hỏi của bạn..." autocomplete="off" />
+  <!-- 🔘 NÚT XÁC NHẬN -->
+  <button id="confirmBtn" class="confirm-btn">
+    ✅ Xác nhận đặt tour
+  </button>
+
+  <form id="form" class="bar">
+    <input id="input" placeholder="Nhập câu hỏi của bạn..." autocomplete="off">
     <button>Gửi</button>
   </form>
 
-  <div class="footer">Hoạt động 24/7 • Tư vấn tự động</div>
+  <div class="foot">Hoạt động 24/7 • Tư vấn tự động</div>
 </div>
 
 <script>
-/* ================== CONFIG ================== */
+/* ===== CONFIG ===== */
 const API_URL   = "https://tour-chatbot-api.vercel.app/api/chat";
 const SHEET_API = "https://script.google.com/macros/s/AKfycbzL_4H4O08AFj7Leh9S5sevRlPNe0JgDABpLVo709R55VGQ_gNA6LiVEoC7uJZ/exec";
 
-/* ================== DOM ================== */
-const chat  = document.getElementById("chat");
-const form  = document.getElementById("form");
+/* ===== DOM ===== */
+const chat = document.getElementById("chat");
+const form = document.getElementById("form");
 const input = document.getElementById("input");
+const confirmBtn = document.getElementById("confirmBtn");
 
-/* ================== STATE ================== */
+/* ===== STATE ===== */
 let conversation = [];
-let customerDate   = "";
+let customerDate = "";
 let customerPeople = "";
-let customerPhone  = "";
+let customerPhone = "";
+let customerEmail = "";
 
-/* ================== AUTO SCROLL (CHUẨN FB) ================== */
-function scrollToBottom(){
+/* ===== SCROLL ===== */
+function scrollBottom(){
   requestAnimationFrame(()=>{
-    chat.scrollTo({ top: chat.scrollHeight, behavior:"smooth" });
+    chat.scrollTop = chat.scrollHeight;
   });
 }
 
-/* ================== ADD MESSAGE ================== */
-function addMsg(text, type){
+/* ===== ADD MESSAGE ===== */
+function addMsg(text,type){
   const div = document.createElement("div");
-  div.className = "msg " + type;
+  div.className = "msg " + (type==="user" ? "me" : "bot");
   div.textContent = text;
   chat.appendChild(div);
+  scrollBottom();
 
   conversation.push({
-    role: type === "user" ? "user" : "assistant",
+    role: type==="user" ? "user" : "assistant",
     content: text
   });
-
-  scrollToBottom();
 }
 
-/* ================== SAVE LEAD ================== */
-async function saveLead(note=""){
-  if(!customerPhone) return;
-
+/* ===== SAVE LEAD ===== */
+async function saveLead(note){
   const payload = {
     name: "Khách website",
     phone: customerPhone,
+    email: customerEmail,
     date: customerDate,
     people: customerPeople,
     message: note
   };
-
-  try{
-    await fetch(SHEET_API,{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify(payload)
-    });
-    console.log("✅ Lead saved");
-  }catch(e){
-    console.error("❌ Save lead error",e);
-  }
+  await fetch(SHEET_API,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify(payload)
+  });
 }
 
-/* ================== WELCOME ================== */
+/* ===== CHECK CONFIRM ===== */
+function canConfirm(){
+  return customerDate && customerPeople && customerPhone;
+}
+
+/* ===== WELCOME ===== */
 addMsg(
-  "Xin chào 👋 Mình là Phạm Trọng. Anh/chị muốn hỏi tour nào ạ? Cho mình biết ngày đi & số người để mình tư vấn chính xác hơn nhé.",
+  "Xin chào 👋 Mình là Phạm Trọng. Anh/chị cho mình biết ngày đi & số người để mình tư vấn chính xác nhé.",
   "bot"
 );
 
-/* ================== SUBMIT ================== */
-form.addEventListener("submit", async (e)=>{
+/* ===== SUBMIT ===== */
+form.addEventListener("submit", async e=>{
   e.preventDefault();
   const msg = input.value.trim();
   if(!msg) return;
@@ -205,31 +212,33 @@ form.addEventListener("submit", async (e)=>{
   addMsg(msg,"user");
   input.value="";
 
-  /* ===== BẮT THÔNG TIN KHÁCH ===== */
   if(/\d{1,2}[\/\-]\d{1,2}/.test(msg)) customerDate = msg;
-  if(/người/.test(msg)) customerPeople = msg;
+  if(/người/i.test(msg)) customerPeople = msg;
   const phone = msg.match(/0\d{9,10}/);
   if(phone) customerPhone = phone[0];
+  const email = msg.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/);
+  if(email) customerEmail = email[0];
 
-  if(/đặt|chốt|xác nhận/i.test(msg)){
-    saveLead("Khách xác nhận đặt tour");
-  }
+  if(canConfirm()) confirmBtn.style.display="block";
 
-  try{
-    const res = await fetch(API_URL,{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({
-        message: msg,
-        history: conversation
-      })
-    });
-    const data = await res.json();
-    addMsg(data.reply || "Mình đang kiểm tra thông tin cho anh/chị nhé.","bot");
-  }catch{
-    addMsg("Lỗi kết nối. Anh/chị thử lại sau giúp mình nhé.","bot");
-  }
+  const res = await fetch(API_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({ message:msg, history:conversation })
+  });
+  const data = await res.json();
+  addMsg(data.reply || "Mình kiểm tra ngay cho anh/chị nhé.","bot");
 });
+
+/* ===== CONFIRM CLICK ===== */
+confirmBtn.onclick = async ()=>{
+  await saveLead("Khách bấm xác nhận đặt tour");
+  addMsg(
+    "🎉 Mình đã giữ chỗ cho anh/chị. Bên mình sẽ liên hệ xác nhận chi tiết trong ít phút nhé!",
+    "bot"
+  );
+  confirmBtn.style.display="none";
+};
 </script>
 </body>
 </html>
