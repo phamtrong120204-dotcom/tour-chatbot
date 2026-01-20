@@ -3,111 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Phạm Trọng – Tư vấn Tour</title>
-
-<style>
-*{
-  box-sizing:border-box;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-}
-html,body{
-  height:100%;
-  margin:0;
-  background:#f3f4f6;
-  overflow:hidden;
-}
-
-/* ===== APP ===== */
-.wrap{
-  position:fixed;
-  inset:0;
-  max-width:520px;
-  margin:0 auto;
-  background:#fff;
-  display:flex;
-  flex-direction:column;
-}
-
-/* ===== HEADER ===== */
-.top{
-  padding:14px 16px;
-  border-bottom:1px solid #eee;
-}
-.brand{font-weight:700}
-.sub{font-size:13px;color:#555;margin-top:4px}
-
-/* ===== CHAT ===== */
-.chat{
-  flex:1;
-  overflow-y:auto;
-  padding:14px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  background:#fafafa;
-}
-.msg{
-  max-width:85%;
-  padding:10px 12px;
-  border-radius:14px;
-  line-height:1.4;
-  word-break:break-word;
-}
-.msg.bot{
-  background:#eef2f7;
-  align-self:flex-start;
-}
-.msg.me{
-  background:#2563eb;
-  color:#fff;
-  align-self:flex-end;
-}
-
-/* ===== CONFIRM BUTTON ===== */
-.confirm-btn{
-  display:none;
-  margin:8px 12px;
-  padding:14px;
-  border:none;
-  border-radius:12px;
-  background:#16a34a;
-  color:#fff;
-  font-weight:600;
-  font-size:15px;
-  cursor:pointer;
-}
-
-/* ===== INPUT ===== */
-.bar{
-  display:flex;
-  gap:8px;
-  padding:12px;
-  border-top:1px solid #eee;
-}
-.bar input{
-  flex:1;
-  padding:10px 12px;
-  border-radius:999px;
-  border:1px solid #ccc;
-}
-.bar button{
-  padding:0 18px;
-  border:none;
-  border-radius:999px;
-  background:#111;
-  color:#fff;
-  font-weight:600;
-}
-
-/* ===== FOOTER ===== */
-.foot{
-  padding:6px;
-  font-size:11px;
-  color:#666;
-  text-align:center;
-}
-
-</style>
+<title>Phạm Trọng – Chatbot Tư vấn Tour</title>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -115,128 +12,62 @@ html,body{
 
   <div class="top">
     <div class="brand">Phạm Trọng – Tư vấn Tour</div>
-    <div class="sub">Hỗ trợ tour, lịch trình & giá minh bạch</div>
+    <div class="sub">Chatbot hỗ trợ thông tin & chính sách tour</div>
   </div>
 
   <div id="chat" class="chat"></div>
 
-  <!-- ✅ NÚT XÁC NHẬN (CHỈ 1 CÁI) -->
-  <button id="confirmBtn" class="confirm-btn">
-    ✅ XÁC NHẬN ĐẶT TOUR
-  </button>
-
   <form id="form" class="bar">
-  <input id="input" placeholder="Nhập câu hỏi của bạn..." autocomplete="off">
-  <button>Gửi</button>
-</form>
+    <input id="input" placeholder="Nhập câu hỏi của bạn..." autocomplete="off">
+    <button>Gửi</button>
+  </form>
 
-<!-- 🔹 Mô tả nhỏ -->
+  <div class="input-note">
+    ⚠️ Chatbot chỉ hỗ trợ tư vấn thông tin.  
+    Để đặt hoặc huỷ tour, vui lòng liên hệ trực tiếp.
+  </div>
 
-<div class="foot">Chat tự động 24/7 • Với đặt hoặc huỷ tour, vui lòng liên hệ trực tiếp để được hỗ trợ nhanh nhất</div>
+  <div class="foot">
+    Zalo: 077.4546.748 • Facebook: pm.trogn
+  </div>
+</div>
 
 <script>
-/* ===== CONFIG ===== */
-const API_URL   = "https://tour-chatbot-api.vercel.app/api/chat";
-const SHEET_API = "https://script.google.com/macros/s/AKfycbzL_4H4O08AFj7Leh9S5sevRlPNe0JgDABpLVo709R55VGQ_gNA6LiVEoC7uJZ/exec";
-
-/* ===== DOM ===== */
+const API_URL = "https://tour-chatbot-api.vercel.app/api/chat";
 const chat = document.getElementById("chat");
 const form = document.getElementById("form");
 const input = document.getElementById("input");
-const confirmBtn = document.getElementById("confirmBtn");
 
-/* ===== STATE ===== */
-let conversation = [];
-let customerDate = "";
-let customerPeople = "";
-let customerPhone = "";
-let customerEmail = "";
-
-/* ===== SCROLL ===== */
-function scrollBottom(){
-  requestAnimationFrame(()=>{
-    chat.scrollTop = chat.scrollHeight;
-  });
-}
-
-/* ===== ADD MESSAGE ===== */
-function addMsg(text,type){
+function addMsg(text, type){
   const div = document.createElement("div");
-  div.className = "msg " + (type==="user" ? "me" : "bot");
+  div.className = "msg " + (type === "user" ? "me" : "bot");
   div.textContent = text;
   chat.appendChild(div);
-  scrollBottom();
-
-  conversation.push({
-    role: type==="user" ? "user" : "assistant",
-    content: text
-  });
+  chat.scrollTop = chat.scrollHeight;
 }
 
-/* ===== SAVE LEAD ===== */
-async function saveLead(note){
-  const payload = {
-    name: "Khách website",
-    phone: customerPhone,
-    email: customerEmail,
-    date: customerDate,
-    people: customerPeople,
-    message: note
-  };
-  await fetch(SHEET_API,{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify(payload)
-  });
-}
-
-/* ===== CHECK CONFIRM ===== */
-function canConfirm(){
-  return customerDate && customerPeople && customerPhone;
-}
-
-/* ===== WELCOME ===== */
 addMsg(
-  "Xin chào 👋 Mình là Phạm Trọng. Anh/chị cho mình biết ngày đi & số người để mình tư vấn chính xác nhé.",
+  "Xin chào 👋 Mình là chatbot tư vấn tour Rừng Dừa Bảy Mẫu. Anh/chị cần mình hỗ trợ thông tin gì ạ?",
   "bot"
 );
 
-/* ===== SUBMIT ===== */
 form.addEventListener("submit", async e=>{
   e.preventDefault();
   const msg = input.value.trim();
   if(!msg) return;
 
-  addMsg(msg,"user");
-  input.value="";
+  addMsg(msg, "user");
+  input.value = "";
 
-  if(/\d{1,2}[\/\-]\d{1,2}/.test(msg)) customerDate = msg;
-  if(/người/i.test(msg)) customerPeople = msg;
-  const phone = msg.match(/0\d{9,10}/);
-  if(phone) customerPhone = phone[0];
-  const email = msg.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/);
-  if(email) customerEmail = email[0];
-
-  if(canConfirm()) confirmBtn.style.display="block";
-
-  const res = await fetch(API_URL,{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({ message:msg, history:conversation })
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: msg })
   });
-  const data = await res.json();
-  addMsg(data.reply || "Mình kiểm tra ngay cho anh/chị nhé.","bot");
-});
 
-/* ===== CONFIRM CLICK ===== */
-confirmBtn.onclick = async ()=>{
-  await saveLead("Khách bấm xác nhận đặt tour");
-  addMsg(
-    "🎉 Mình đã giữ chỗ cho anh/chị. Bên mình sẽ liên hệ xác nhận chi tiết trong ít phút nhé!",
-    "bot"
-  );
-  confirmBtn.style.display="none";
-};
+  const data = await res.json();
+  addMsg(data.reply || "Mình chưa hiểu rõ, anh/chị có thể hỏi lại giúp mình nhé.", "bot");
+});
 </script>
 </body>
 </html>
