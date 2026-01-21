@@ -12,7 +12,7 @@
 
   <div class="top">
     <div class="brand">Phạm Trọng – Tư vấn Tour</div>
-    <div class="sub">Chatbot hỗ trợ thông tin & chính sách tour</div>
+    <div class="sub">Hỗ trợ thông tin & chính sách tour</div>
   </div>
 
   <div id="chat" class="chat"></div>
@@ -23,13 +23,14 @@
   </form>
 
   <div class="input-note">
-    ⚠️ Chatbot chỉ hỗ trợ tư vấn thông tin.  
-    Để đặt hoặc huỷ tour, vui lòng liên hệ trực tiếp.
+    ⚠️ Chatbot chỉ hỗ trợ tư vấn thông tin & chính sách.  
+    Không nhận đặt hoặc huỷ tour trực tiếp.
   </div>
 
   <div class="foot">
     Zalo: 077.4546.748 • Facebook: pm.trogn
   </div>
+
 </div>
 
 <script>
@@ -47,7 +48,7 @@ function addMsg(text, type){
 }
 
 addMsg(
-  "Xin chào 👋 Mình là chatbot tư vấn tour Rừng Dừa Bảy Mẫu. Anh/chị cần mình hỗ trợ thông tin gì ạ?",
+  "Xin chào 👋 Mình là chatbot tư vấn tour Rừng Dừa Bảy Mẫu. Anh/chị có thể hỏi mình về giá tour, quy trình đặt – huỷ hoặc chính sách bảo mật nhé.",
   "bot"
 );
 
@@ -59,14 +60,14 @@ form.addEventListener("submit", async e=>{
   addMsg(msg, "user");
   input.value = "";
 
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: msg })
+  const res = await fetch(API_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({ message: msg })
   });
 
   const data = await res.json();
-  addMsg(data.reply || "Mình chưa hiểu rõ, anh/chị có thể hỏi lại giúp mình nhé.", "bot");
+  addMsg(data.reply, "bot");
 });
 </script>
 </body>
